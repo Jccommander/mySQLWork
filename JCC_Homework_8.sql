@@ -70,3 +70,77 @@ f.film_id = i.film_id WHERE f.title = "HUNCHBACK IMPOSSIBLE";
 SELECT c.first_name, c.last_name, sum(p.amount) AS "Total Paid" FROM customer c
 JOIN payment p ON
 c.customer_id = p.customer_id GROUP BY c.first_name, c.last_name ORDER BY c.last_name;
+
+-- 7.a
+SELECT title FROM film WHERE title LIKE ('K%') OR title LIKE ('Q%') AND language_id IN (
+SELECT language_id FROM language WHERE name = "English");
+
+-- 7.b
+SELECT first_name, last_name FROM actor WHERE actor_id IN (
+SELECT actor_id FROM film_actor WHERE film_id IN(
+SELECT film_id FROM film WHERE title = "ALONE TRIP"));
+
+-- 7.c
+SELECT first_name, last_name, email FROM customer WHERE address_id IN(
+SELECT address_id FROM address WHERE city_id IN(
+SELECT city_id FROM city WHERE country_id IN(
+SELECT country_id FROM country WHERE country = "Canada")));
+
+-- 7.d
+SELECT title AS "Family Films", film_id AS "Film ID" FROM film WHERE film_id IN(
+SELECT film_id FROM film_category WHERE category_id IN(
+SELECT category_id FROM category WHERE name = "Family"));
+
+-- 7.e
+SELECT f.title AS "Film Title", count(r.rental_id) AS "Number of Rentals" FROM rental r
+JOIN inventory i ON
+r.inventory_id = i.inventory_id
+JOIN film f ON
+i.film_id = f.film_id GROUP BY f.title ORDER BY count(r.rental_id) DESC;
+
+-- 7.f
+SELECT s.store_id AS "Store ID", sum(p.amount) AS "Total Revenue" FROM store s
+JOIN inventory i ON
+s.store_id = i.store_id
+JOIN rental r ON
+i.inventory_id = r.inventory_id
+JOIN payment p ON
+r.rental_id = p.rental_id GROUP BY s.store_id;
+
+-- 7.g
+SELECT s.store_id AS "Store ID", c.city AS "City", co.country AS "Country" FROM store s
+JOIN address a ON
+s.address_id = a.address_id
+JOIN city c ON
+a.city_id = c.city_id
+JOIN country co ON
+c.country_id = co.country_id;
+
+-- 7.h
+SELECT c.name AS "Film Genre", sum(p.amount) AS "Gross Revenue" FROM category c
+JOIN film_category fc ON
+c.category_id = fc.category_id
+JOIN inventory i ON
+fc.film_id = i.film_id
+JOIN rental r ON
+i.inventory_id = r.inventory_id
+JOIN payment p ON
+r.rental_id = p.rental_id GROUP BY c.name ORDER BY sum(p.amount) DESC LIMIT 5;
+
+-- 8.a
+CREATE VIEW top_five_genres AS
+SELECT c.name AS "Film Genre", sum(p.amount) AS "Gross Revenue" FROM category c
+JOIN film_category fc ON
+c.category_id = fc.category_id
+JOIN inventory i ON
+fc.film_id = i.film_id
+JOIN rental r ON
+i.inventory_id = r.inventory_id
+JOIN payment p ON
+r.rental_id = p.rental_id GROUP BY c.name ORDER BY sum(p.amount) DESC LIMIT 5;
+
+-- 8.b
+SELECT * FROM top_five_genres;
+
+-- 8.c
+DROP VIEW top_five_genres;
